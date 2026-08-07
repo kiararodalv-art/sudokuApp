@@ -102,6 +102,123 @@
       border: 0;
     }
 
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: boardReveal 220ms steps(4, end) both;
+    }
+
+    .start-screen-inner,
+    .results-screen-inner {
+      width: min(760px, 100%);
+      margin: 0 auto;
+    }
+
+    .start-controls,
+    .results-content {
+      display: grid;
+      gap: 16px;
+      padding: 20px;
+    }
+
+    .start-controls {
+      justify-items: start;
+    }
+
+    .start-summary {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .screen-game.active {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      min-height: calc(100dvh - 32px);
+      padding: 10px;
+    }
+
+    .game-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 2px 8px;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .game-top .eyebrow { font-size: 0.66rem; }
+
+    .game-top .timer-card {
+      min-width: 0;
+      padding: 4px 8px;
+      border-width: 1px;
+      transform: none;
+    }
+
+    .game-top .timer-label { display: none; }
+    .game-top .timer-value { font-size: 1.25rem; }
+
+    .game-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(270px, 350px);
+      gap: 16px;
+      min-height: 0;
+      padding-top: 10px;
+    }
+
+    .game-board-area {
+      display: grid;
+      place-items: center;
+      min-height: 0;
+    }
+
+    .game-board-area .board-shell {
+      width: min(100%, 620px);
+    }
+
+    .game-controls {
+      display: grid;
+      align-content: center;
+      gap: 10px;
+    }
+
+    .game-controls .keypad-card { padding: 10px; }
+    .game-controls .keypad-card .panel-title,
+    .game-controls .help-text { display: none; }
+    .game-controls .keypad-grid { gap: 6px; }
+    .game-controls .key-btn { min-height: 44px; }
+
+    .game-controls .action-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .game-controls .action-row .btn {
+      min-height: 40px;
+      padding: 5px 6px;
+      font-size: 0.72rem;
+      line-height: 1.05;
+    }
+
+    .result-message {
+      margin: 0;
+      padding: 12px;
+      border: 2px solid var(--success);
+      background: #dce8cf;
+      color: #245b37;
+      font-weight: 700;
+    }
+
+    .results-content .sidebar {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .page {
       width: min(1200px, calc(100% - 24px));
       margin: 0 auto;
@@ -646,6 +763,55 @@
       .action-row .btn { flex: 1 1 130px; }
 
       .board-card { padding: 7px; }
+
+      .page {
+        width: 100%;
+        min-height: 100dvh;
+        padding: 0;
+      }
+
+      .app {
+        min-height: 100dvh;
+        border-width: 1px;
+        box-shadow: none;
+      }
+
+      .screen-game.active {
+        min-height: 100dvh;
+        padding: 6px;
+      }
+
+      .game-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr) auto;
+        gap: 6px;
+        padding-top: 6px;
+      }
+
+      .game-board-area .board-shell {
+        width: min(100%, calc(100dvh - 285px));
+      }
+
+      .game-board-area { align-items: center; }
+      .game-board-area .board-card { padding: 4px; }
+      .game-board-area .status {
+        min-height: 16px;
+        font-size: 0.67rem;
+        line-height: 1.1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .game-controls { gap: 6px; }
+      .game-controls .keypad-card { padding: 5px; }
+      .game-controls .keypad-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .game-controls .key-btn[data-key="0"] { grid-column: span 1; }
+      .game-controls .key-btn { min-height: 38px; font-size: 0.92rem; }
+      .game-controls .action-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .game-controls .action-row .btn { min-height: 36px; font-size: 0.58rem; }
+
+      .results-content .sidebar { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 460px) {
@@ -671,24 +837,17 @@
 <body>
   <div class="page">
     <main class="app" aria-label="Aplicación de Sudoku clásico">
-      <header class="hero">
-        <div class="brand">
-          <p class="eyebrow">Cuadernillo de pasatiempos · <span id="puzzleNumber">Puzzle Nº 001</span></p>
-          <h1>Sudoku clásico</h1>
-          <p class="subtitle">
-            Rellena la cuadrícula, anota candidatos a lápiz y completa el pasatiempo.
-          </p>
-        </div>
-        <section class="timer-card" aria-label="Cronómetro">
-          <p class="timer-label">Tiempo actual</p>
-          <p class="timer-value" id="timer">00:00</p>
-        </section>
-      </header>
-
-      <section class="toolbar" aria-label="Controles del juego">
-        <div class="panel">
-          <p class="panel-title">Dificultad y partida</p>
-          <div class="difficulty-row">
+      <section class="screen active" id="screen-start" aria-labelledby="start-title">
+        <div class="start-screen-inner">
+          <header class="hero">
+            <div class="brand">
+              <p class="eyebrow">Cuadernillo de pasatiempos · <span id="puzzleNumber">Puzzle Nº 001</span></p>
+              <h1 id="start-title">Sudoku clásico</h1>
+              <p class="subtitle">Rellena la cuadrícula, anota candidatos a lápiz y completa el pasatiempo.</p>
+            </div>
+          </header>
+          <div class="start-controls">
+            <p class="panel-title">Elige dificultad</p>
             <label for="difficulty" class="sr-only">Seleccionar dificultad</label>
             <select id="difficulty" class="difficulty-select" aria-label="Seleccionar dificultad">
               <option value="easy">Fácil</option>
@@ -697,83 +856,59 @@
               <option value="expert">Experto</option>
             </select>
             <button class="btn btn-primary" id="newGame">Nueva partida</button>
-            <button class="btn btn-quiet" id="restartGame">Reiniciar partida</button>
-          </div>
-        </div>
-
-        <div class="panel">
-          <p class="panel-title">Ayudas y edición</p>
-          <div class="action-row">
-            <button class="btn" id="hintBtn">Pista</button>
-            <button class="btn" id="checkBtn">Comprobar errores</button>
-            <button class="btn" id="undoBtn">Deshacer</button>
-            <button class="btn" id="redoBtn">Rehacer</button>
-            <button class="btn" id="notesBtn" aria-pressed="false">Modo notas: no</button>
-            <button class="btn" id="autoNotesBtn">Autocompletar notas</button>
-            <button class="btn" id="themeBtn" aria-pressed="false">Modo oscuro: no</button>
-            <button class="btn btn-danger" id="eraseBtn">Borrar</button>
+            <p class="start-summary" id="startSummary">Partidas jugadas: 0 · Ganadas: 0 · Mejor tiempo: —</p>
           </div>
         </div>
       </section>
 
-      <section class="content">
-        <div class="board-shell">
-          <div class="board-card" id="boardCard">
-            <div class="solved-banner" id="solvedBanner">Sudoku resuelto. Puedes iniciar una nueva partida.</div>
-            <div
-              id="board"
-              class="board"
-              role="grid"
-              aria-rowcount="9"
-              aria-colcount="9"
-              aria-label="Tablero de Sudoku"
-            ></div>
-          </div>
-          <div class="status" id="status" aria-live="polite">El tablero se genera automáticamente con una solución única.</div>
-        </div>
-
-        <aside class="sidebar" aria-label="Estadísticas y ayuda">
-          <section class="stats-card">
-            <p class="panel-title">Estadísticas</p>
-            <div class="stats-grid">
-              <div class="stat">
-                <p class="stat-label">Partidas jugadas</p>
-                <p class="stat-value" id="playedStat">0</p>
+      <section class="screen" id="screen-game" aria-label="Partida de Sudoku">
+        <header class="game-top">
+          <p class="eyebrow">Sudoku clásico · En curso</p>
+          <section class="timer-card" aria-label="Cronómetro"><p class="timer-label">Tiempo actual</p><p class="timer-value" id="timer">00:00</p></section>
+        </header>
+        <div class="game-main">
+          <div class="game-board-area">
+            <div class="board-shell">
+              <div class="board-card" id="boardCard">
+                <div class="solved-banner" id="solvedBanner">Sudoku resuelto.</div>
+                <div id="board" class="board" role="grid" aria-rowcount="9" aria-colcount="9" aria-label="Tablero de Sudoku"></div>
               </div>
-              <div class="stat">
-                <p class="stat-label">Partidas ganadas</p>
-                <p class="stat-value" id="wonStat">0</p>
-              </div>
-              <div class="stat">
-                <p class="stat-label">Tiempo total</p>
-                <p class="stat-value" id="totalTimeStat">00:00</p>
-              </div>
-              <div class="stat">
-                <p class="stat-label">Dificultad actual</p>
-                <p class="stat-value" id="currentDifficultyStat">Medio</p>
-              </div>
+              <div class="status" id="status" aria-live="polite">El tablero se genera automáticamente con una solución única.</div>
             </div>
-          </section>
-
-          <section class="notes-card">
-            <p class="panel-title">Mejores tiempos</p>
-            <ul class="best-list" id="bestList"></ul>
-            <p class="footer-note">
-              Navega con flechas, escribe números del 1 al 9, usa N para las notas, Ctrl/Cmd+Z para deshacer y Supr o Retroceso para borrar.
-            </p>
-          </section>
-        </aside>
-      </section>
-
-      <section class="content" style="padding-top: 0;">
-        <div class="board-shell">
-          <div class="keypad-card" aria-label="Teclado numérico">
-            <p class="panel-title">Teclado numérico</p>
-            <p class="help-text">Selecciona una casilla y pulsa un número. Activa “Modo notas” (o N) para anotar candidatos; el azul indica números escritos a bolígrafo.</p>
-            <div class="keypad-grid" id="keypad"></div>
+          </div>
+          <div class="game-controls">
+            <div class="keypad-card" aria-label="Teclado numérico"><p class="panel-title">Teclado numérico</p><p class="help-text">Selecciona una casilla y pulsa un número.</p><div class="keypad-grid" id="keypad"></div></div>
+            <div class="action-row" aria-label="Ayudas y edición">
+              <button class="btn" id="hintBtn" aria-label="Pista">Pista</button>
+              <button class="btn" id="checkBtn" aria-label="Comprobar errores">Comprobar</button>
+              <button class="btn" id="undoBtn" aria-label="Deshacer">Deshacer</button>
+              <button class="btn" id="redoBtn" aria-label="Rehacer">Rehacer</button>
+              <button class="btn" id="notesBtn" aria-pressed="false">Notas: no</button>
+              <button class="btn" id="autoNotesBtn" aria-label="Autocompletar notas">Autonotas</button>
+              <button class="btn btn-danger" id="eraseBtn" aria-label="Borrar">Borrar</button>
+              <button class="btn btn-quiet" id="restartGame" aria-label="Reiniciar partida">Reiniciar</button>
+              <button class="btn" id="themeBtn" aria-pressed="false">Tema</button>
+            </div>
           </div>
         </div>
-        <div></div>
+      </section>
+
+      <section class="screen" id="screen-results" aria-labelledby="results-title">
+        <div class="results-screen-inner">
+          <header class="hero"><div class="brand"><p class="eyebrow">Cuadernillo terminado</p><h1 id="results-title">Resultado</h1><p class="subtitle" id="resultMessage">Sudoku resuelto.</p></div></header>
+          <div class="results-content">
+            <aside class="sidebar" aria-label="Estadísticas y mejores tiempos">
+              <section class="stats-card"><p class="panel-title">Estadísticas</p><div class="stats-grid">
+                <div class="stat"><p class="stat-label">Partidas jugadas</p><p class="stat-value" id="playedStat">0</p></div>
+                <div class="stat"><p class="stat-label">Partidas ganadas</p><p class="stat-value" id="wonStat">0</p></div>
+                <div class="stat"><p class="stat-label">Tiempo total</p><p class="stat-value" id="totalTimeStat">00:00</p></div>
+                <div class="stat"><p class="stat-label">Dificultad actual</p><p class="stat-value" id="currentDifficultyStat">Medio</p></div>
+              </div></section>
+              <section class="notes-card"><p class="panel-title">Mejores tiempos</p><ul class="best-list" id="bestList"></ul></section>
+            </aside>
+            <button class="btn btn-primary" id="homeBtn">Volver al inicio</button>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -827,6 +962,12 @@
         solvedBanner: document.getElementById("solvedBanner"),
         timer: document.getElementById("timer"),
         status: document.getElementById("status"),
+        startScreen: document.getElementById("screen-start"),
+        gameScreen: document.getElementById("screen-game"),
+        resultsScreen: document.getElementById("screen-results"),
+        startSummary: document.getElementById("startSummary"),
+        resultMessage: document.getElementById("resultMessage"),
+        homeBtn: document.getElementById("homeBtn"),
         difficulty: document.getElementById("difficulty"),
         newGame: document.getElementById("newGame"),
         restartGame: document.getElementById("restartGame"),
@@ -1391,6 +1532,23 @@
           li.append(label, value);
           els.bestList.appendChild(li);
         }
+
+        const bestTimes = order
+          .map(key => state.stats.bestByDifficulty[key])
+          .filter(value => value != null);
+        const best = bestTimes.length ? formatTime(Math.min(...bestTimes)) : "—";
+        els.startSummary.textContent = `Partidas jugadas: ${state.stats.overall.played} · Ganadas: ${state.stats.overall.won} · Mejor tiempo: ${best}`;
+      }
+
+      function showScreen(name) {
+        const screens = {
+          start: els.startScreen,
+          game: els.gameScreen,
+          results: els.resultsScreen
+        };
+        Object.entries(screens).forEach(([key, screen]) => {
+          screen.classList.toggle("active", key === name);
+        });
       }
 
       function updateButtonStates() {
@@ -1779,7 +1937,9 @@
           els.board.classList.add("is-solved");
           saveCurrentGame();
           setStatus(`Sudoku resuelto en ${formatTime(elapsed)}.`);
+          els.resultMessage.textContent = `Sudoku resuelto en ${formatTime(elapsed)}.`;
           renderBoard();
+          showScreen("results");
         }
       }
 
@@ -1961,7 +2121,10 @@
         els.board.addEventListener("click", handleBoardClick);
         document.addEventListener("keydown", handleKeydown);
 
-        els.newGame.addEventListener("click", () => startGame({ countPlayed: true }));
+        els.newGame.addEventListener("click", () => {
+          showScreen("game");
+          startGame({ countPlayed: true });
+        });
         els.restartGame.addEventListener("click", restartGame);
         els.hintBtn.addEventListener("click", giveHint);
         els.checkBtn.addEventListener("click", checkErrors);
@@ -1973,6 +2136,10 @@
           setTheme(document.body.dataset.theme === "dark" ? "light" : "dark");
         });
         els.eraseBtn.addEventListener("click", eraseSelectedCell);
+        els.homeBtn.addEventListener("click", () => {
+          showScreen("start");
+          updateStatsDisplay();
+        });
 
         els.difficulty.addEventListener("change", () => changeDifficulty(els.difficulty.value));
 
@@ -2006,9 +2173,11 @@
         if (restoreSavedGame()) {
           setStatus("Se ha recuperado la partida anterior.");
           renderBoard();
+          showScreen("game");
           focusSelectedCell();
         } else {
-          startGame({ countPlayed: true });
+          showScreen("start");
+          updatePuzzleNumber();
         }
 
         window.setInterval(renderTimer, 250);
