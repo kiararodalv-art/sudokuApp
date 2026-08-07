@@ -153,6 +153,21 @@
 
     .game-top .eyebrow { font-size: 0.66rem; }
 
+    .game-top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .abandon-btn {
+      min-height: 30px;
+      padding: 4px 7px;
+      font-size: 0.65rem;
+      color: var(--muted);
+      background: transparent;
+      border-color: var(--soft-line);
+    }
+
     .game-top .timer-card {
       min-width: 0;
       padding: 4px 8px;
@@ -816,6 +831,7 @@
       .game-controls .key-btn { min-height: 38px; font-size: 0.92rem; }
       .game-controls .action-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
       .game-controls .action-row .btn { min-height: 36px; font-size: 0.58rem; }
+      .abandon-btn { min-height: 28px; font-size: 0.58rem; }
 
       .results-content .sidebar { grid-template-columns: 1fr; }
     }
@@ -870,7 +886,10 @@
       <section class="screen" id="screen-game" aria-label="Partida de Sudoku">
         <header class="game-top">
           <p class="eyebrow">Sudoku clásico · En curso</p>
-          <section class="timer-card" aria-label="Cronómetro"><p class="timer-label">Tiempo actual</p><p class="timer-value" id="timer">00:00</p></section>
+          <div class="game-top-actions">
+            <button class="btn abandon-btn" id="abandonBtn" aria-label="Abandonar partida">Salir</button>
+            <section class="timer-card" aria-label="Cronómetro"><p class="timer-label">Tiempo actual</p><p class="timer-value" id="timer">00:00</p></section>
+          </div>
         </header>
         <div class="game-main">
           <div class="game-board-area">
@@ -974,6 +993,7 @@
         startSummary: document.getElementById("startSummary"),
         resultMessage: document.getElementById("resultMessage"),
         homeBtn: document.getElementById("homeBtn"),
+        abandonBtn: document.getElementById("abandonBtn"),
         difficulty: document.getElementById("difficulty"),
         newGame: document.getElementById("newGame"),
         restartGame: document.getElementById("restartGame"),
@@ -2055,6 +2075,18 @@
         focusSelectedCell();
       }
 
+      function abandonGame() {
+        if (!state.solution.length || !confirm("¿Seguro que quieres abandonar esta partida?")) {
+          return;
+        }
+
+        finalizeSessionIfNeeded();
+        localStorage.removeItem(GAME_STORAGE_KEY);
+        setStatus("Partida abandonada.");
+        updateStatsDisplay();
+        showScreen("start");
+      }
+
       function changeDifficulty(nextDifficulty) {
         state.difficulty = nextDifficulty;
         els.currentDifficultyStat.textContent = getGameLabel(nextDifficulty);
@@ -2170,6 +2202,7 @@
           setTheme(document.body.dataset.theme === "dark" ? "light" : "dark");
         });
         els.eraseBtn.addEventListener("click", eraseSelectedCell);
+        els.abandonBtn.addEventListener("click", abandonGame);
         els.homeBtn.addEventListener("click", () => {
           showScreen("start");
           updateStatsDisplay();
